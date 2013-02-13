@@ -1,0 +1,83 @@
+
+<!doctype html>
+
+<head>
+	<title>WEB AUDIO API filter demo</title>
+	<meta name="author" content="Florian Hacker" />
+	
+	<script src="js/libs/jquery-1.7.js"></script>
+	<script src="js/src/init.js"></script>
+	<script src="js/src/Studio.js"></script>
+	<script src="js/src/components/Mixer.js"></script>
+	<script src="js/src/components/effects/Filter.js"></script>
+	<script src="js/src/service/BufferLoader.js"></script>
+	<script src="js/src/components/effects/Convolution.js"></script>
+	<script src="js/src/components/effects/Reverb.js"></script>
+</head>
+
+<body>
+	
+	<style>
+		body{
+			background: black;
+		}
+		
+		p, a{
+			color: white;
+		}
+		
+	</style>
+	
+	<p>WEB AUDIO API filter demo: Use Google Chrome and tilt your Macbook forward to set a Highpass filter</p>
+	<p>by <a href="http://www.twitter.com/florianhacker">@florianhacker</a></p>
+	
+	<script>
+	
+		$(function(){
+			
+			var studio = new audio.Studio();
+			
+			studio.loadSounds( ["audio/loop1.mp3"], function(sounds){
+			
+				var dnb = sounds[0];				
+								
+				filter = studio.installFilter("1"); // LOWPASS = 0; HIGHPASS = 1; 2; LOWSHELF = 3; HIGHSHELF = 4; PEAKING = 5; NOTCH = 6; ALLPASS = 7;
+				filter.connect(studio.studioMixer.channels[1])
+				filter.changeFrequency(0)
+				filter.setQuality(0.2);	
+				dnb.connect( filter.inputGain );
+
+				// play
+				dnb.noteOn(0);	
+				
+				initDeviceOrientation();
+
+			});
+
+			
+			function initDeviceOrientation(){
+				
+				filter.setQuality(0.05);	
+				
+				/ * device orientation * /		
+				window.addEventListener('deviceorientation', function(eventData) {
+
+					var tiltFB = eventData.beta;
+					
+					if(tiltFB < -4){
+						var frequency = Math.min( 1, Math.max(  tiltFB/-50, 0 ) );
+						filter.changeFrequency( frequency )						
+					}
+
+				}, false);
+			}
+			
+
+			
+			
+			
+		});
+		
+	</script>
+</body>
+</html>
